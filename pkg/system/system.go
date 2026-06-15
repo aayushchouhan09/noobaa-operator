@@ -35,6 +35,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/cli-runtime/pkg/printers"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -1212,7 +1213,7 @@ type Client struct {
 
 // GetNBClient returns an api client
 func GetNBClient() nb.Client {
-	c, err := Connect(true)
+	c, err := ConnectAuto()
 	if err != nil {
 		util.Logger().Fatalf("❌ %s", err)
 	}
@@ -1309,6 +1310,22 @@ func Connect(isExternal bool) (*Client, error) {
 		MgmtURL:     mgmtURL,
 		S3URL:       s3URL,
 	}, nil
+}
+
+// IsRunningInCluster returns true when the process runs inside a Kubernetes pod.
+// It uses rest.InClusterConfig(), which checks KUBERNETES_SERVICE_HOST/PORT and
+// the service account token/CA at /var/run/secrets/kubernetes.io/serviceaccount/.
+// KUBECONFIG does not affect this detection.
+func IsRunningInCluster() bool {
+	_, err := rest.InClusterConfig()
+	return err == nil
+}
+
+// ConnectAuto connects to the NooBaa system
+// external to cluster or internal to cluster based on the running environment
+func ConnectAuto() (*Client, error) {
+	isExternal := !IsRunningInCluster()
+	return Connect(isExternal)
 }
 
 // GetDesiredDBImage returns the desired DB image according to spec or env or default (in options)
