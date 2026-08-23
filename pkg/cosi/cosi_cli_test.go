@@ -35,7 +35,7 @@ var _ = Describe("COSI CLI tests", func() {
 	var nsResource *nbv1.NamespaceStore
 	log := util.Logger()
 
-	sysClient, err := system.Connect(true)
+	sysClient, err := system.ConnectAuto()
 	if err != nil {
 		log.Infof("COSI bucket creation tests, can't create sysclient: err= %q", err)
 	}

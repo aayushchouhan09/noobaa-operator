@@ -324,7 +324,7 @@ func RunUpdate(cmd *cobra.Command, args []string) {
 			RunStatus(cmd, args)
 		}
 	} else {
-		sysClient, err := system.Connect(true)
+		sysClient, err := system.ConnectAuto()
 		if err != nil {
 			log.Fatalf(`❌ Unable to create RPC client %s`, err)
 		}
@@ -679,7 +679,7 @@ func GenerateAccountKeys(name string) error {
 
 	var accessKeys nb.S3AccessKeys
 
-	sysClient, err := system.Connect(true)
+	sysClient, err := system.ConnectAuto()
 	if err != nil {
 		return err
 	}
@@ -736,7 +736,7 @@ func GenerateNonCrdAccountKeys(name string) error {
 
 	var accessKeys nb.S3AccessKeys
 
-	sysClient, err := system.Connect(true)
+	sysClient, err := system.ConnectAuto()
 	if err != nil {
 		return err
 	}
@@ -773,7 +773,7 @@ func GenerateNonCrdAccountKeys(name string) error {
 func UpdateAccountKeys(name string, accessKeys nb.S3AccessKeys) error {
 	log := util.Logger()
 
-	sysClient, err := system.Connect(true)
+	sysClient, err := system.ConnectAuto()
 	if err != nil {
 		return err
 	}
@@ -829,7 +829,7 @@ func UpdateAccountKeys(name string, accessKeys nb.S3AccessKeys) error {
 func UpdateNonCrdAccountKeys(name string, accessKeys nb.S3AccessKeys) error {
 	log := util.Logger()
 
-	sysClient, err := system.Connect(true)
+	sysClient, err := system.ConnectAuto()
 	if err != nil {
 		return err
 	}
@@ -879,7 +879,7 @@ func ValidateAccessKeys(accessKeys nb.S3AccessKeys) {
 
 // ResetPassword reset noobaa account password
 func ResetPassword(name string, oldPassword string, newPassword string, retypeNewPassword string) error {
-	sysClient, err := system.Connect(true)
+	sysClient, err := system.ConnectAuto()
 	if err != nil {
 		return err
 	}
