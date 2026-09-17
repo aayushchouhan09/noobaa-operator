@@ -32,21 +32,24 @@ func ValidateNSFSAccountConfig(NSFSConfig string, bucketclass string) error {
 	if bucketclass == "" {
 		return fmt.Errorf("a bucketclass backed by an NSFS namespacestore is required for NSFS account config usage")
 	}
-	// Check if no UID, GID or distinguished name were provided
-	if configObj.UID == nil && configObj.GID == nil && configObj.DistinguishedName == "" {
+
+	// Require both UID and GID together, or DistinguishedName alone
+	if (configObj.UID == nil || configObj.GID == nil) && configObj.DistinguishedName == "" {
 		return fmt.Errorf("UID and GID, or DistinguishedName must be provided")
 	}
-	// Check UID/GID cases only in case they're defined
+	// Check UID/GID cases when numeric identity mapping is used
 	if configObj.UID != nil || configObj.GID != nil {
-		// Check whether only UID or only GID were provided
+		if configObj.UID == nil || configObj.GID == nil {
+			return fmt.Errorf("NSFS account config must include both UID and GID")
+		}
 		if *configObj.UID < 0 || *configObj.GID < 0 {
 			return fmt.Errorf("UID and GID must be positive integers")
-			// Check whether a distinguished name was provided alongside UID or GID
-		} else if configObj.DistinguishedName != "" && (*configObj.GID > -1 || *configObj.UID > -1) {
+		} else if configObj.DistinguishedName != "" {
+			// Distinguished name cannot be provided alongside UID/GID
 			return fmt.Errorf(`NSFS account config cannot include both distinguished name and UID/GID`)
 		}
-		// Otherwise, validate the distinguished name
 	} else if configObj.DistinguishedName != "" {
+		// Validate distinguished name when used without UID/GID
 		if !linuxUsernameRegex.MatchString(configObj.DistinguishedName) {
 			return fmt.Errorf("DistinguishedName must be a valid username by Linux standards")
 		}
