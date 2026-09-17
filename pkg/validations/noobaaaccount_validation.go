@@ -50,18 +50,8 @@ func ValidateNSFSConfig(na nbv1.NooBaaAccount) error {
 		return nil
 	}
 
-	//UID validation
-	if *nsfsConf.UID < 0 {
-		return util.ValidationError{
-			Msg: "UID must be a whole positive number",
-		}
-	}
-
-	//GID validation
-	if *nsfsConf.GID < 0 {
-		return util.ValidationError{
-			Msg: "GID must be a whole positive number",
-		}
+	if err := validateAccountNsfsIdentity(nsfsConf); err != nil {
+		return util.ValidationError{Msg: err.Error()}
 	}
 
 	return nil
